@@ -1,0 +1,7 @@
+vendor/
+_notes/
+.vagrant/
+index.php
+*.swp
+*.bak
+DSN.php
