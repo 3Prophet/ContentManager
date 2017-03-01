@@ -1,0 +1,73 @@
+
+-------------------------FIRST ITERATION
+
++ A Booking migh have Files associated with it
++  	 A File can't exist without a corresponding Booking
+
+- Every File has an Owner - User, who uploads it
+- 	File can't exist without an Owner
+-	Owner can't exist without a File
+-	Ownership can't exist without both File and(or) Owner
+		
+- Owner assigns different permissions to Users. 
+	Owner can't exist without being a User
+	
+User is either and individual user or an user group.
+
+Permission exists only if User exists,
+ if File exists and Owner exists
+ 
+ 
+ As soon as the Booking will be deleted all the entries... responsibility of the client to take care of the folder
+
+-----------------------FINAL ITERATION -----------------------------------
+
+A Booking might have Files associated with it
+	A File can't exist without a corresponding Booking (N:1)
+	If the booking is deleted the file is deleted.
+	If the file is removed it is marked as deleted.
+	File is weak entity. 
+	
+files_booking([bkg_id, file_id], filename,
+			 path, is_folder, is_deleted);	
+	
+File can be uploaded and reuploaded by multiple Users (M:N)
+	Upload relation can't exist without a File (marked as deleted)
+	If file is deleted the corresponding uploads are deleted too.
+	If file is removed the corresponding uploads are marked as deleted.
+uploads_booking([bkg_id, file_id, user_is])	
+	
+Permission to File can be assigned to Users / UserGroups (M:N:K)
+It is not specified who assigns them -it is of the application's concern
+	Permission can't exit without either a User a File or a Booking 
+	Permission is a weak entity
+	If File is removed the booking is deleted
+	If File is marked as removed the Permission is marked as deleted.
+files:permissions_users, permissions_groups
+	
+	
+Problems:
+1. Foreign key constraint insertion (when linking 2 databases with different engines). The issue is discussed here:
+
+http://stackoverflow.com/questions/9018584/error-code-1005-cant-create-table-errno-150
+
+
+2. Composite key with one of the column being 
+ automatically enumerated and values of this column being
+  automatically updated if say one of the rows is deleted:
+  
+http://stackoverflow.com/questions/24184749/sql-server-unique-composite-key-of-two-field-with-second-field-auto-increment
+
+https://msdn.microsoft.com/en-us/library/ms190457.aspx
+
+Should we include update history just like uploads?
+Using transactions by FileManager:
+
+http://stackoverflow.com/questions/3107552/filedatabase-transaction-safety
+
+If file is deleted the database should not delete the entry in database (what if it was renamed by say a virus)
+
+
+File download the right way:
+http://www.media-division.com/the-right-way-to-handle-file-downloads-in-php/
+
